@@ -52,6 +52,12 @@ public class DummyGame implements IGameLogic {
             window.setResized(false);
         }
         window.setClearColor(color, color, color, 0.0f);
-        renderer.clear();
+        this.renderer.clear();
     }
+
+    @Override
+    public void cleanup() {
+        this.renderer.cleanup();
+    }
+
 }

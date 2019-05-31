@@ -1,5 +1,7 @@
 package engine;
 
+import game.Renderer;
+
 public class GameEngine implements Runnable {
 
     public static final int TARGET_FPS = 75;
@@ -11,18 +13,18 @@ public class GameEngine implements Runnable {
 
     public GameEngine(String windowTitle, int width, int height,
                      boolean vsSync, IGameLogic gameLogic) throws Exception {
-        gameLoopThread =  new Thread(this, "GAME_LOOP_THREAD");
-        window = new Window(windowTitle, width, height, vsSync);
+        this.gameLoopThread =  new Thread(this, "GAME_LOOP_THREAD");
+        this.window = new Window(windowTitle, width, height, vsSync);
         this.gameLogic = gameLogic;
-        timer = new Timer();
+        this.timer = new Timer();
     }
 
     public void start() {
         String osName = System.getProperty("os.name");
         if ( osName.contains("Mac") ) {
-            gameLoopThread.run();
+            this.gameLoopThread.run();
         } else {
-            gameLoopThread.start();
+            this.gameLoopThread.start();
         }
     }
 
@@ -33,13 +35,15 @@ public class GameEngine implements Runnable {
             gameLoop();
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            cleanup();
         }
     }
 
     protected void init() throws Exception {
-        window.init();
-        timer.init();
-        gameLogic.init();
+        this.window.init();
+        this.timer.init();
+        this.gameLogic.init();
     }
 
     protected void gameLoop() {
@@ -69,8 +73,8 @@ public class GameEngine implements Runnable {
 
     private void sync() {
         float loopSlot = 1f / TARGET_FPS;
-        double endTime = timer.getLastLoopTime() + loopSlot;
-        while (timer.getTime() < endTime) {
+        double endTime = this.timer.getLastLoopTime() + loopSlot;
+        while (this.timer.getTime() < endTime) {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException ie) {
@@ -80,18 +84,21 @@ public class GameEngine implements Runnable {
     }
 
     protected void input() {
-        gameLogic.input(window);
+        this.gameLogic.input(this.window);
     }
 
     protected void update(float interval) {
-        gameLogic.update(interval);
+        this.gameLogic.update(interval);
     }
 
     protected void render() {
-        gameLogic.render(window);
-        window.update();
+        this.gameLogic.render(this.window);
+        this.window.update();
     }
 
+    protected void cleanup() {
+        this.gameLogic.cleanup();
+    }
 
 
 }
